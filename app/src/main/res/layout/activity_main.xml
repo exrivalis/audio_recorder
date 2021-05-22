@@ -12,47 +12,56 @@
         android:layout_height="wrap_content"
         android:text="00:00.00"
         android:textSize="56sp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/waveformView"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginBottom="30dp"/>
+
+    <com.thezone.audiorecorder.WaveformView
+        android:id="@+id/waveformView"
+        android:layout_width="match_parent"
+        android:layout_height="400px"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <LinearLayout
+        android:id="@+id/linearLayout2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="80dp"
         android:gravity="center"
         android:orientation="horizontal"
-        android:layout_marginBottom="80dp"
         app:layout_constraintBottom_toBottomOf="parent">
+
         <ImageButton
             android:id="@+id/btnDelete"
             android:layout_width="@dimen/btn_size"
-            android:src="@drawable/ic_delete_disabled"
+            android:layout_height="@dimen/btn_size"
             android:background="@drawable/ic_ripple"
-            android:layout_height="@dimen/btn_size"/>
+            android:src="@drawable/ic_delete_disabled" />
 
         <ImageButton
             android:id="@+id/btnRecord"
             android:layout_width="66dp"
-            android:background="@drawable/ic_record"
+            android:layout_height="66dp"
             android:layout_marginStart="30dp"
             android:layout_marginEnd="30dp"
-            android:layout_height="66dp"/>
+            android:background="@drawable/ic_record" />
 
         <ImageButton
             android:id="@+id/btnList"
             android:layout_width="@dimen/btn_size"
-            android:src="@drawable/ic_list"
+            android:layout_height="@dimen/btn_size"
             android:background="@drawable/ic_ripple"
-            android:layout_height="@dimen/btn_size"/>
+            android:src="@drawable/ic_list" />
 
         <ImageButton
             android:id="@+id/btnDone"
-            android:visibility="gone"
             android:layout_width="@dimen/btn_size"
-            android:src="@drawable/ic_done"
+            android:layout_height="@dimen/btn_size"
             android:background="@drawable/ic_ripple"
-            android:layout_height="@dimen/btn_size"/>
+            android:src="@drawable/ic_done"
+            android:visibility="gone" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
