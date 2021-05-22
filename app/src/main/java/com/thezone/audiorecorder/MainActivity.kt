@@ -8,8 +8,10 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.VibrationEffect
 import android.os.Vibrator
+import android.view.View
 import androidx.core.app.ActivityCompat
 import kotlinx.android.synthetic.main.activity_main.*
+import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -53,6 +55,8 @@ class MainActivity : AppCompatActivity(), Timer.OnTimerTickListener{
 
             vibrator.vibrate(VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE))
         }
+
+
     }
 
     override fun onRequestPermissionsResult(
@@ -122,5 +126,6 @@ class MainActivity : AppCompatActivity(), Timer.OnTimerTickListener{
 
     override fun onTimerTick(duration: String) {
         tvTimer.text = duration
+        waveformView.addAmplitude(recorder.maxAmplitude.toFloat())
     }
 }
