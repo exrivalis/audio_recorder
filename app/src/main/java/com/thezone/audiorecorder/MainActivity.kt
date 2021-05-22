@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.view.View
+import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.File
@@ -20,6 +21,7 @@ const val REQUEST_CODE = 200
 
 class MainActivity : AppCompatActivity(), Timer.OnTimerTickListener{
 
+    private lateinit var amplitudes: ArrayList<Float>
     private var permissions = arrayOf(Manifest.permission.RECORD_AUDIO)
     private var permissionGranted = false
 
@@ -56,7 +58,26 @@ class MainActivity : AppCompatActivity(), Timer.OnTimerTickListener{
             vibrator.vibrate(VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE))
         }
 
+        btnList.setOnClickListener {
+            // TODO
+            Toast.makeText(this, "List button", Toast.LENGTH_SHORT).show()
 
+        }
+
+        btnDone.setOnClickListener {
+            stopRecorder()
+            // TODO
+            Toast.makeText(this, "Record saved", Toast.LENGTH_SHORT).show()
+        }
+
+        btnDelete.setOnClickListener {
+            stopRecorder()
+            File("$dirPath$filename.mp3")
+            Toast.makeText(this, "Record deleted", Toast.LENGTH_SHORT).show()
+
+        }
+
+        btnDelete.isClickable = false
     }
 
     override fun onRequestPermissionsResult(
@@ -118,10 +139,36 @@ class MainActivity : AppCompatActivity(), Timer.OnTimerTickListener{
         isPaused = false
 
         timer.start()
+
+        btnDelete.isClickable = true
+        btnDelete.setImageResource(R.drawable.ic_delete)
+
+        btnList.visibility = View.GONE
+        btnDone.visibility = View.VISIBLE
     }
 
     private fun stopRecorder(){
         timer.stop()
+
+        recorder.apply {
+            stop()
+            release()
+        }
+
+        isPaused = false
+        isRecording = false
+
+        btnList.visibility = View.VISIBLE
+        btnDone.visibility = View.GONE
+
+        btnDelete.isClickable = false
+        btnDelete.setImageResource(R.drawable.ic_delete_disabled)
+
+        btnRecord.setImageResource(R.drawable.ic_record)
+
+        tvTimer.text = "00:00.00"
+        amplitudes = waveformView.clear()
+
     }
 
     override fun onTimerTick(duration: String) {
