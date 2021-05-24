@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import java.text.SimpleDateFormat
 import java.util.*
 
-class Adapter(var records : List<AudioRecord>) : RecyclerView.Adapter<Adapter.ViewHolder>() {
+class Adapter(var records : ArrayList<AudioRecord>) : RecyclerView.Adapter<Adapter.ViewHolder>() {
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
         var tvFilename : TextView = itemView.findViewById(R.id.tvFilename)
@@ -37,10 +37,5 @@ class Adapter(var records : List<AudioRecord>) : RecyclerView.Adapter<Adapter.Vi
             holder.tvFilename.text = record.filename
             holder.tvMeta.text = "${record.duration } $strDate"
         }
-    }
-
-    fun setData(records: List<AudioRecord>){
-        this.records = records
-        notifyDataSetChanged()
     }
 }
