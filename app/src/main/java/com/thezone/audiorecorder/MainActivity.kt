@@ -11,11 +11,16 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
+import androidx.room.Room
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.bottom_sheet.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.io.File
+import java.io.FileOutputStream
 import java.io.IOException
+import java.io.ObjectOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -33,9 +38,13 @@ class MainActivity : AppCompatActivity(), Timer.OnTimerTickListener{
     private var isRecording = false
     private var isPaused = false
 
+    private var duration = ""
+
     private lateinit var vibrator: Vibrator
 
     private lateinit var timer: Timer
+
+    private lateinit var db : AppDatabase
 
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<LinearLayout>
 
@@ -48,6 +57,11 @@ class MainActivity : AppCompatActivity(), Timer.OnTimerTickListener{
         if(!permissionGranted)
             ActivityCompat.requestPermissions(this, permissions, REQUEST_CODE)
 
+        db = Room.databaseBuilder(
+            this,
+            AppDatabase::class.java,
+            "audioRecords"
+        ).build()
 
         bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet)
         bottomSheetBehavior.peekHeight = 0
@@ -112,6 +126,25 @@ class MainActivity : AppCompatActivity(), Timer.OnTimerTickListener{
             var newFile = File("$dirPath$newFilename.mp3")
             File("$dirPath$filename.mp3").renameTo(newFile)
         }
+
+        var filePath = "$dirPath$newFilename.mp3"
+        var timestamp = Date().time
+        var ampsPath = "$dirPath$newFilename"
+
+        try{
+            var fos = FileOutputStream(ampsPath)
+            var out = ObjectOutputStream(fos)
+            out.writeObject(amplitudes)
+            fos.close()
+            out.close()
+        }catch (e :IOException){}
+
+        var record = AudioRecord(newFilename, filePath, timestamp, duration, ampsPath)
+
+        GlobalScope.launch {
+            db.audioRecordDao().insert(record)
+        }
+
     }
 
     private fun dismiss(){
@@ -220,6 +253,7 @@ class MainActivity : AppCompatActivity(), Timer.OnTimerTickListener{
 
     override fun onTimerTick(duration: String) {
         tvTimer.text = duration
+        this.duration = duration.dropLast(3)
         waveformView.addAmplitude(recorder.maxAmplitude.toFloat())
     }
 }
