@@ -2,6 +2,7 @@ package com.thezone.audiorecorder
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.media.MediaRecorder
 import android.os.*
@@ -82,7 +83,7 @@ class MainActivity : AppCompatActivity(), Timer.OnTimerTickListener{
 
         btnList.setOnClickListener {
             // TODO
-            Toast.makeText(this, "List button", Toast.LENGTH_SHORT).show()
+            startActivity(Intent(this, GalleryActivity::class.java))
 
         }
 
