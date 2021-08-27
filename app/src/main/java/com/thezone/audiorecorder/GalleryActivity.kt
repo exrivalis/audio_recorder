@@ -2,13 +2,14 @@ package com.thezone.audiorecorder
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.room.Room
 import kotlinx.android.synthetic.main.activity_gallery.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
-class GalleryActivity : AppCompatActivity() {
+class GalleryActivity : AppCompatActivity(), OnItemClickListener {
 
     private lateinit var records : ArrayList<AudioRecord>
     private lateinit var mAdapter : Adapter
@@ -26,7 +27,7 @@ class GalleryActivity : AppCompatActivity() {
             "audioRecords"
         ).build()
 
-        mAdapter = Adapter(records)
+        mAdapter = Adapter(records, this)
 
         recyclerview.apply {
             adapter = mAdapter
@@ -45,5 +46,13 @@ class GalleryActivity : AppCompatActivity() {
 
             mAdapter.notifyDataSetChanged()
         }
+    }
+
+    override fun onItemClickListener(position: Int) {
+        Toast.makeText(this, "Simple click", Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onItemLongClickListener(position: Int) {
+        Toast.makeText(this, "Long click", Toast.LENGTH_SHORT).show()
     }
 }

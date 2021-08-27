@@ -9,12 +9,29 @@ import androidx.recyclerview.widget.RecyclerView
 import java.text.SimpleDateFormat
 import java.util.*
 
-class Adapter(var records : ArrayList<AudioRecord>) : RecyclerView.Adapter<Adapter.ViewHolder>() {
+class Adapter(var records : ArrayList<AudioRecord>, var listener: OnItemClickListener) : RecyclerView.Adapter<Adapter.ViewHolder>() {
 
-    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
+    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), View.OnClickListener, View.OnLongClickListener{
         var tvFilename : TextView = itemView.findViewById(R.id.tvFilename)
         var tvMeta : TextView = itemView.findViewById(R.id.tvMeta)
         var checkbox : CheckBox = itemView.findViewById(R.id.checkbox)
+
+        init {
+            itemView.setOnClickListener(this)
+            itemView.setOnLongClickListener(this)
+        }
+        override fun onClick(p0: View?) {
+            val position = adapterPosition
+            if(position != RecyclerView.NO_POSITION)
+                listener.onItemClickListener(position)
+        }
+
+        override fun onLongClick(p0: View?): Boolean {
+            val position = adapterPosition
+            if(position != RecyclerView.NO_POSITION)
+                listener.onItemLongClickListener(position)
+            return true
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
