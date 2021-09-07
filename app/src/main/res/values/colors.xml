@@ -22,5 +22,7 @@
 
     <color name="opaqueBG">#61000000</color>
 
+    <color name="playerColor"> #FF4349</color>
+
 
 </resources>

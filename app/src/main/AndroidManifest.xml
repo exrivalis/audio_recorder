@@ -12,7 +12,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AudioRecorder">
-        <activity android:name=".GalleryActivity"></activity>
+        <activity android:name=".AudioPlayerActivity"></activity>
+        <activity android:name=".GalleryActivity" />
         <activity
             android:name=".MainActivity"
             android:windowSoftInputMode="adjustResize">
