@@ -8,12 +8,22 @@ import android.os.Handler
 import android.os.Looper
 import android.widget.ImageButton
 import android.widget.SeekBar
+import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
+import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.chip.Chip
 import kotlinx.android.synthetic.main.activity_audio_player.*
+import java.text.DecimalFormat
+import java.text.NumberFormat
 
 class AudioPlayerActivity : AppCompatActivity() {
     private lateinit var mediaPlayer: MediaPlayer
+
+    private lateinit var toolbar: MaterialToolbar
+    private lateinit var tvFilename: TextView
+
+    private lateinit var tvTrackProgress: TextView
+    private lateinit var tvTrackDuration: TextView
 
     private lateinit var btnPlay : ImageButton
     private lateinit var btnBackward : ImageButton
@@ -35,6 +45,20 @@ class AudioPlayerActivity : AppCompatActivity() {
         var filePath = intent.getStringExtra("filepath")
         var fileName = intent.getStringExtra("filename")
 
+        toolbar = findViewById(R.id.toolbar)
+        tvFilename = findViewById(R.id.tvFilename)
+
+        tvTrackDuration = findViewById(R.id.tvTrackDuration)
+        tvTrackProgress = findViewById(R.id.tvTrackProgress)
+
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayShowHomeEnabled(true)
+        toolbar.setNavigationOnClickListener {
+            onBackPressed()
+        }
+
+        tvFilename.text = fileName
 
         mediaPlayer = MediaPlayer()
         mediaPlayer.apply {
@@ -42,6 +66,8 @@ class AudioPlayerActivity : AppCompatActivity() {
             prepare()
         }
 
+
+        tvTrackDuration.text = dateFormat(mediaPlayer.duration)
 
         btnBackward = findViewById(R.id.btnBackward)
         btnForward = findViewById(R.id.btnForward)
@@ -53,6 +79,7 @@ class AudioPlayerActivity : AppCompatActivity() {
         handler = Handler(Looper.getMainLooper())
         runnable = Runnable {
             seekBar.progress = mediaPlayer.currentPosition
+            tvTrackProgress.text = dateFormat(mediaPlayer.currentPosition)
             handler.postDelayed(runnable, delay)
         }
 
@@ -62,6 +89,7 @@ class AudioPlayerActivity : AppCompatActivity() {
 
         playPausePlayer()
         seekBar.max = mediaPlayer.duration
+
 
         mediaPlayer.setOnCompletionListener {
             btnPlay.background = ResourcesCompat.getDrawable(resources, R.drawable.ic_play_circle, theme)
@@ -115,4 +143,26 @@ class AudioPlayerActivity : AppCompatActivity() {
             handler.removeCallbacks(runnable)
         }
     }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        mediaPlayer.stop()
+        mediaPlayer.release()
+        handler.removeCallbacks(runnable)
+    }
+
+    private fun dateFormat(duration: Int): String {
+        var d = duration/1000
+        var s = d%60
+        var m = (d/60 % 60)
+        var h = ((d - m*60)/360).toInt()
+
+        val f: NumberFormat = DecimalFormat("00")
+        var str = "$m:${f.format(s)}"
+
+        if(h>0)
+            str = "$h:$str"
+        return  str
+    }
+
 }
