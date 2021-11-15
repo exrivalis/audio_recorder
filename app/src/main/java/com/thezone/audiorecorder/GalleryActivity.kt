@@ -5,9 +5,12 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.View
+import android.widget.ImageButton
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.room.Room
+import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.android.synthetic.main.activity_gallery.*
 import kotlinx.coroutines.GlobalScope
@@ -19,11 +22,31 @@ class GalleryActivity : AppCompatActivity(), OnItemClickListener {
     private lateinit var mAdapter : Adapter
     private lateinit var db : AppDatabase
 
+    private var allChecked = false
+
+    private lateinit var toolbar: MaterialToolbar
+
+    private lateinit var editBar: View
+    private lateinit var btnClose: ImageButton
+    private lateinit var btnSelectAll: ImageButton
+
     private lateinit var searchInput : TextInputEditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_gallery)
+
+        toolbar = findViewById(R.id.toolbar)
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayShowHomeEnabled(true)
+        toolbar.setNavigationOnClickListener {
+            onBackPressed()
+        }
+
+        editBar = findViewById(R.id.editBar)
+        btnClose = findViewById(R.id.btnClose)
+        btnSelectAll = findViewById(R.id.btnSelectAll)
 
         records = ArrayList()
 
@@ -56,6 +79,22 @@ class GalleryActivity : AppCompatActivity(), OnItemClickListener {
             }
 
         })
+
+        btnClose.setOnClickListener {
+            supportActionBar?.setDisplayHomeAsUpEnabled(true)
+            supportActionBar?.setDisplayShowHomeEnabled(true)
+
+            editBar.visibility = View.GONE
+
+            records.map { it.isChecked = false }
+            mAdapter.setEditMode(false)
+        }
+
+        btnSelectAll.setOnClickListener {
+            allChecked = !allChecked
+            records.map { it.isChecked = allChecked }
+            mAdapter.notifyDataSetChanged()
+        }
     }
 
     private fun searchDatabase(query: String) {
@@ -84,14 +123,29 @@ class GalleryActivity : AppCompatActivity(), OnItemClickListener {
 
     override fun onItemClickListener(position: Int) {
         var audioRecord = records[position]
-        var intent = Intent(this, AudioPlayerActivity::class.java)
 
-        intent.putExtra("filepath", audioRecord.filePath)
-        intent.putExtra("filename", audioRecord.filename)
-        startActivity(intent)
+        if(mAdapter.isEditMode()){
+            records[position].isChecked = !records[position].isChecked
+            mAdapter.notifyItemChanged(position)
+        }else{
+            var intent = Intent(this, AudioPlayerActivity::class.java)
+
+            intent.putExtra("filepath", audioRecord.filePath)
+            intent.putExtra("filename", audioRecord.filename)
+            startActivity(intent)
+        }
     }
 
     override fun onItemLongClickListener(position: Int) {
-        Toast.makeText(this, "Long click", Toast.LENGTH_SHORT).show()
+        mAdapter.setEditMode(true)
+        records[position].isChecked = !records[position].isChecked
+        mAdapter.notifyItemChanged(position)
+
+        if(mAdapter.isEditMode() && editBar.visibility == View.GONE){
+            supportActionBar?.setDisplayHomeAsUpEnabled(false)
+            supportActionBar?.setDisplayShowHomeEnabled(false)
+
+            editBar.visibility = View.VISIBLE
+        }
     }
 }
