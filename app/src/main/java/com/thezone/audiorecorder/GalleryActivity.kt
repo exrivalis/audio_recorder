@@ -7,10 +7,12 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import android.widget.ImageButton
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.room.Room
 import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.android.synthetic.main.activity_gallery.*
 import kotlinx.coroutines.GlobalScope
@@ -31,6 +33,8 @@ class GalleryActivity : AppCompatActivity(), OnItemClickListener {
     private lateinit var btnSelectAll: ImageButton
 
     private lateinit var searchInput : TextInputEditText
+    private lateinit var bottomSheet: LinearLayout
+    private lateinit var bottomSheetBehavior: BottomSheetBehavior<LinearLayout>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,6 +51,10 @@ class GalleryActivity : AppCompatActivity(), OnItemClickListener {
         editBar = findViewById(R.id.editBar)
         btnClose = findViewById(R.id.btnClose)
         btnSelectAll = findViewById(R.id.btnSelectAll)
+
+        bottomSheet = findViewById(R.id.bottomSheet)
+        bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet)
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
 
         records = ArrayList()
 
@@ -85,6 +93,7 @@ class GalleryActivity : AppCompatActivity(), OnItemClickListener {
             supportActionBar?.setDisplayShowHomeEnabled(true)
 
             editBar.visibility = View.GONE
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
 
             records.map { it.isChecked = false }
             mAdapter.setEditMode(false)
@@ -140,6 +149,8 @@ class GalleryActivity : AppCompatActivity(), OnItemClickListener {
         mAdapter.setEditMode(true)
         records[position].isChecked = !records[position].isChecked
         mAdapter.notifyItemChanged(position)
+
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
 
         if(mAdapter.isEditMode() && editBar.visibility == View.GONE){
             supportActionBar?.setDisplayHomeAsUpEnabled(false)
