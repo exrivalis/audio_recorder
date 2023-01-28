@@ -8,7 +8,10 @@ import android.text.TextWatcher
 import android.view.View
 import android.widget.ImageButton
 import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.room.Room
 import com.google.android.material.appbar.MaterialToolbar
@@ -36,6 +39,11 @@ class GalleryActivity : AppCompatActivity(), OnItemClickListener {
     private lateinit var bottomSheet: LinearLayout
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<LinearLayout>
 
+    private lateinit var btnRename : ImageButton
+    private lateinit var btnDelete : ImageButton
+    private lateinit var tvRename : TextView
+    private lateinit var tvDelete : TextView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_gallery)
@@ -47,6 +55,11 @@ class GalleryActivity : AppCompatActivity(), OnItemClickListener {
         toolbar.setNavigationOnClickListener {
             onBackPressed()
         }
+
+        btnRename = findViewById(R.id.btnEdit)
+        btnDelete = findViewById(R.id.btnDelete)
+        tvRename = findViewById(R.id.tvEdit)
+        tvDelete = findViewById(R.id.tvDelete)
 
         editBar = findViewById(R.id.editBar)
         btnClose = findViewById(R.id.btnClose)
@@ -89,21 +102,81 @@ class GalleryActivity : AppCompatActivity(), OnItemClickListener {
         })
 
         btnClose.setOnClickListener {
-            supportActionBar?.setDisplayHomeAsUpEnabled(true)
-            supportActionBar?.setDisplayShowHomeEnabled(true)
-
-            editBar.visibility = View.GONE
-            bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
-
-            records.map { it.isChecked = false }
-            mAdapter.setEditMode(false)
+            leaveEditMode()
         }
 
         btnSelectAll.setOnClickListener {
             allChecked = !allChecked
             records.map { it.isChecked = allChecked }
             mAdapter.notifyDataSetChanged()
+
+            if(allChecked){
+                disableRename()
+                enableDelete()
+            }else {
+                disableRename()
+                disableDelete()
+            }
         }
+
+        btnDelete.setOnClickListener {
+            val builder = AlertDialog.Builder(this)
+            builder.setTitle("Delete record?")
+            val nbRecords = records.count{it.isChecked}
+            builder.setMessage("Are you sure you want to delete $nbRecords record(s) ?")
+
+            builder.setPositiveButton("Delete") {_, _ ->
+                val toDelete = records.filter { it.isChecked }.toTypedArray()
+                GlobalScope.launch {
+                    db.audioRecordDao().delete(toDelete)
+                    runOnUiThread {
+                        records.removeAll(toDelete)
+                        mAdapter.notifyDataSetChanged()
+                        leaveEditMode()
+                    }
+                }
+            }
+
+            builder.setNegativeButton("Cancel") {_, _ ->
+                // it does nothing
+            }
+
+            val dialog = builder.create()
+            dialog.show()
+        }
+    }
+
+    private fun leaveEditMode () {
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayShowHomeEnabled(true)
+
+        editBar.visibility = View.GONE
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+
+        records.map { it.isChecked = false }
+        mAdapter.setEditMode(false)
+    }
+
+    private fun disableRename () {
+        btnRename.isClickable = false
+        btnRename.backgroundTintList = ResourcesCompat.getColorStateList(resources, R.color.grayDarkDisabled, theme)
+        tvEdit.setTextColor(ResourcesCompat.getColorStateList(resources, R.color.grayDarkDisabled, theme))
+    }
+    private fun disableDelete () {
+        btnDelete.isClickable = false
+        btnDelete.backgroundTintList = ResourcesCompat.getColorStateList(resources, R.color.grayDarkDisabled, theme)
+        tvDelete.setTextColor(ResourcesCompat.getColorStateList(resources, R.color.grayDarkDisabled, theme))
+    }
+
+    private fun enableRename () {
+        btnRename.isClickable = true
+        btnRename.backgroundTintList = ResourcesCompat.getColorStateList(resources, R.color.grayDark, theme)
+        tvEdit.setTextColor(ResourcesCompat.getColorStateList(resources, R.color.grayDark, theme))
+    }
+    private fun enableDelete () {
+        btnDelete.isClickable = true
+        btnDelete.backgroundTintList = ResourcesCompat.getColorStateList(resources, R.color.grayDark, theme)
+        tvDelete.setTextColor(ResourcesCompat.getColorStateList(resources, R.color.grayDark, theme))
     }
 
     private fun searchDatabase(query: String) {
@@ -136,6 +209,22 @@ class GalleryActivity : AppCompatActivity(), OnItemClickListener {
         if(mAdapter.isEditMode()){
             records[position].isChecked = !records[position].isChecked
             mAdapter.notifyItemChanged(position)
+
+            var nbSelected = records.count{it.isChecked}
+            when(nbSelected){
+                0 -> {
+                    disableRename()
+                    disableDelete()
+                }
+                1 -> {
+                    enableDelete()
+                    enableRename()
+                }
+                else -> {
+                    disableRename()
+                    enableDelete()
+                }
+            }
         }else{
             var intent = Intent(this, AudioPlayerActivity::class.java)
 
@@ -157,6 +246,9 @@ class GalleryActivity : AppCompatActivity(), OnItemClickListener {
             supportActionBar?.setDisplayShowHomeEnabled(false)
 
             editBar.visibility = View.VISIBLE
+
+            enableDelete()
+            enableRename()
         }
     }
 }

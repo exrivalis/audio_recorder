@@ -88,12 +88,16 @@
                     android:layout_marginEnd="90dp">
                         <ImageButton
                             android:id="@+id/btnDelete"
+                            android:clickable="false"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:backgroundTint="@color/grayDarkDisabled"
                             android:background="@drawable/ic_round_delete"/>
                         <TextView
+                            android:id="@+id/tvDelete"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:textColor="@color/grayDarkDisabled"
                             android:text="Delete"/>
                 </LinearLayout>
 
@@ -104,12 +108,16 @@
                     android:gravity="center">
                         <ImageButton
                             android:id="@+id/btnEdit"
+                            android:clickable="false"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:backgroundTint="@color/grayDarkDisabled"
                             android:background="@drawable/ic_round_edit"/>
                         <TextView
+                            android:id="@+id/tvEdit"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:textColor="@color/grayDarkDisabled"
                             android:text="Edit"/>
                 </LinearLayout>
         </LinearLayout>
